@@ -16,11 +16,13 @@ const idToTemplate = cached(id => {
 
 const mount = Vue.prototype.$mount
 Vue.prototype.$mount = function (
+  //字符串或者dom
   el?: string | Element,
   hydrating?: boolean
 ): Component {
   el = el && query(el)
 
+  //不能直接挂载到body或html上
   /* istanbul ignore if */
   if (el === document.body || el === document.documentElement) {
     process.env.NODE_ENV !== 'production' && warn(
@@ -54,8 +56,10 @@ Vue.prototype.$mount = function (
         return this
       }
     } else if (el) {
+      //获得dom字符串
       template = getOuterHTML(el)
     }
+    //编译相关
     if (template) {
       /* istanbul ignore if */
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {

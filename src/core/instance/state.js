@@ -35,7 +35,7 @@ const sharedPropertyDefinition = {
   get: noop,
   set: noop
 }
-
+//target: vm实例,  sourceKey: _data, key
 export function proxy (target: Object, sourceKey: string, key: string) {
   sharedPropertyDefinition.get = function proxyGetter () {
     return this[sourceKey][key]
@@ -49,8 +49,11 @@ export function proxy (target: Object, sourceKey: string, key: string) {
 export function initState (vm: Component) {
   vm._watchers = []
   const opts = vm.$options
+  //初始化props
   if (opts.props) initProps(vm, opts.props)
+  //初始化methods
   if (opts.methods) initMethods(vm, opts.methods)
+  //初始化data
   if (opts.data) {
     initData(vm)
   } else {
@@ -111,11 +114,20 @@ function initProps (vm: Component, propsOptions: Object) {
 }
 
 function initData (vm: Component) {
+  // vue推荐使用
+  // data(){
+  //   return {
+
+  //   }
+  // }
   let data = vm.$options.data
+
+  //data复制给_data
   data = vm._data = typeof data === 'function'
     ? getData(data, vm)
     : data || {}
   if (!isPlainObject(data)) {
+    // 不是一个对象会报一个警告
     data = {}
     process.env.NODE_ENV !== 'production' && warn(
       'data functions should return an object:\n' +
@@ -129,6 +141,7 @@ function initData (vm: Component) {
   const methods = vm.$options.methods
   let i = keys.length
   while (i--) {
+    //防止data，props，data重名，因为最终都要挂在到同一个vue实例当中
     const key = keys[i]
     if (process.env.NODE_ENV !== 'production') {
       if (methods && hasOwn(methods, key)) {
@@ -145,6 +158,7 @@ function initData (vm: Component) {
         vm
       )
     } else if (!isReserved(key)) {
+      //使用Object.defineProperty定义vm实例的_data属性为data集合
       proxy(vm, `_data`, key)
     }
   }
