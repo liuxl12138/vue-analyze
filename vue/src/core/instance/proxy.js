@@ -24,6 +24,7 @@ if (process.env.NODE_ENV !== 'production') {
     )
   }
 
+  //判断浏览器是否支持proxy （es6提供的api）
   const hasProxy =
     typeof Proxy !== 'undefined' && isNative(Proxy)
 
@@ -41,7 +42,7 @@ if (process.env.NODE_ENV !== 'production') {
       }
     })
   }
-
+  //使用了不存在的属性，会报一个警告
   const hasHandler = {
     has (target, key) {
       const has = key in target
@@ -63,6 +64,7 @@ if (process.env.NODE_ENV !== 'production') {
   }
 
   initProxy = function initProxy (vm) {
+    //浏览器如果支持proxy，用proxy做代理
     if (hasProxy) {
       // determine which proxy handler to use
       const options = vm.$options

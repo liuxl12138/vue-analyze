@@ -34,6 +34,7 @@ export function createElement (
   normalizationType: any,
   alwaysNormalize: boolean
 ): VNode | Array<VNode> {
+  //参数上移
   if (Array.isArray(data) || isPrimitive(data)) {
     normalizationType = children
     children = data
@@ -52,6 +53,9 @@ export function _createElement (
   children?: any, //VNode 的子节点
   normalizationType?: number //子节点规范的类型，类型不同规范的方法也就不一样，它主要是参考 render 函数是编译生成的还是用户手写的。
 ): VNode | Array<VNode> {
+
+  //isDef:data !== undefined && data !== null
+  //vnode data不能是响应式的，有__ob__证明data是响应式的
   if (isDef(data) && isDef((data: any).__ob__)) {
     process.env.NODE_ENV !== 'production' && warn(
       `Avoid using observed data object as vnode data: ${JSON.stringify(data)}\n` +
@@ -68,6 +72,8 @@ export function _createElement (
     // in case of component :is set to falsy value
     return createEmptyVNode()
   }
+
+  //key必须是基础数据类型
   // warn against non-primitive key
   if (process.env.NODE_ENV !== 'production' &&
     isDef(data) && isDef(data.key) && !isPrimitive(data.key)
@@ -90,11 +96,6 @@ export function _createElement (
   }
 
   if (normalizationType === ALWAYS_NORMALIZE) {
-    /**
-     * 方法的调用场景有 2 种，
-     * 一个场景是 render 函数是用户手写的，当 children 只有一个节点的时候，Vue.js 从接口层面允许用户把 children 写成基础类型用来创建单个简单的文本节点，这种情况会调用 createTextVNode 创建一个文本节点的 VNode；
-     * 另一个场景是当编译 slot、v-for 的时候会产生嵌套数组的情况，会调用 normalizeArrayChildren 方法
-     */
     children = normalizeChildren(children)
   } else if (normalizationType === SIMPLE_NORMALIZE) {
     //render函数是编译生成的
@@ -109,6 +110,7 @@ export function _createElement (
   if (typeof tag === 'string') {
     let Ctor
     ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag)
+    //判断标签是不是html的保留的标签
     if (config.isReservedTag(tag)) {
       // platform built-in elements
       vnode = new VNode(

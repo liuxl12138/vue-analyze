@@ -161,6 +161,7 @@ export function mountComponent (
 
   let updateComponent
   /* istanbul ignore if */
+  //mark 是性能埋点相关
   if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
     updateComponent = () => {
       const name = vm._name
@@ -180,12 +181,18 @@ export function mountComponent (
     }
   } else {
     updateComponent = () => {
+
+      /**
+       * 1.先执行vm._render()，生成一个vnode
+       * 2.把vnode渲染
+       */
       vm._update(vm._render(), hydrating)
     }
   }
 
 
   /**
+   * 是一个渲染watcher
    * 两个作用：1.初始化的时候调用回调函数   2.vm实例中的监测的数据发生变化的时候执行回调函数
    */
   // we set this to vm._watcher inside the watcher's constructor

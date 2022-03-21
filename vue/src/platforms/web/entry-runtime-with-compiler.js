@@ -15,10 +15,13 @@ const idToTemplate = cached(id => {
 })
 
 const mount = Vue.prototype.$mount
+
+//运行编译版本重写的$mount
 Vue.prototype.$mount = function (
   el?: string | Element,
   hydrating?: boolean
 ): Component {
+  //查找挂载的dom
   el = el && query(el)
 
   /* istanbul ignore if */
@@ -34,6 +37,8 @@ Vue.prototype.$mount = function (
 
   const options = this.$options
   // resolve template/el and convert to render function
+
+  //如果没有render函数
   if (!options.render) {
     let template = options.template
     if (template) {
@@ -59,6 +64,8 @@ Vue.prototype.$mount = function (
     } else if (el) {
       template = getOuterHTML(el)
     }
+
+    //编译相关
     if (template) {
       /* istanbul ignore if */
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {

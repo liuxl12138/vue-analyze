@@ -47,7 +47,7 @@ export default class Watcher {
     expOrFn: string | Function,
     cb: Function,
     options?: ?Object,
-    isRenderWatcher?: boolean
+    isRenderWatcher?: boolean //是否是一个渲染watcher
   ) {
     this.vm = vm
     if (isRenderWatcher) {

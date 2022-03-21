@@ -15,9 +15,11 @@ import { isFalse, isTrue, isDef, isUndef, isPrimitive } from 'shared/util'
 // normalization is needed - if any child is an Array, we flatten the whole
 // thing with Array.prototype.concat. It is guaranteed to be only 1-level deep
 // because functional components already normalize their own children.
+
 export function simpleNormalizeChildren (children: any) {
   for (let i = 0; i < children.length; i++) {
     if (Array.isArray(children[i])) {
+     //嵌套数组拍平，一层
       return Array.prototype.concat.apply([], children)
     }
   }
@@ -28,6 +30,12 @@ export function simpleNormalizeChildren (children: any) {
 // e.g. <template>, <slot>, v-for, or when the children is provided by user
 // with hand-written render functions / JSX. In such cases a full normalization
 // is needed to cater to all possible types of children values.
+
+    /**
+     * 方法的调用场景有 2 种，
+     * 一个场景是 render 函数是用户手写的，当 children 只有一个节点的时候，Vue.js 从接口层面允许用户把 children 写成基础类型用来创建单个简单的文本节点，这种情况会调用 createTextVNode 创建一个文本节点的 VNode；
+     * 另一个场景是当编译 slot、v-for 的时候会产生嵌套数组的情况，会调用 normalizeArrayChildren 方法
+     */
 export function normalizeChildren (children: any): ?Array<VNode> {
   return isPrimitive(children)
     ? [createTextVNode(children)]
@@ -49,6 +57,7 @@ function normalizeArrayChildren (children: any, nestedIndex?: string): Array<VNo
     lastIndex = res.length - 1
     last = res[lastIndex]
     //  nested
+    //children数组嵌套，递归拍平数组
     if (Array.isArray(c)) {
       if (c.length > 0) {
         c = normalizeArrayChildren(c, `${nestedIndex || ''}_${i}`)
@@ -59,7 +68,8 @@ function normalizeArrayChildren (children: any, nestedIndex?: string): Array<VNo
         }
         res.push.apply(res, c)
       }
-    } else if (isPrimitive(c)) {
+    }//children是基础类型 
+    else if (isPrimitive(c)) {
       if (isTextNode(last)) {
         // merge adjacent text nodes
         // this is necessary for SSR hydration because text nodes are
