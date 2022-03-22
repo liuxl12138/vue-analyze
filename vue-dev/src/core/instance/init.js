@@ -30,11 +30,13 @@ export function initMixin (Vue: Class<Component>) {
     vm._isVue = true
     // merge options
     if (options && options._isComponent) {
+      //如果是组件
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
+
       vm.$options = mergeOptions(
         resolveConstructorOptions(vm.constructor),
         options || {},
@@ -65,20 +67,27 @@ export function initMixin (Vue: Class<Component>) {
       mark(endTag)
       measure(`vue ${vm._name} init`, startTag, endTag)
     }
-
+    //组件不执行
     if (vm.$options.el) {
       vm.$mount(vm.$options.el)
     }
   }
 }
-
+/**
+ * 
+ * 这个过程我们重点记住以下几个点即可：opts.parent = options.parent、opts._parentVnode = parentVnode，
+ * 它们是把之前我们通过 createComponentInstanceForVnode 函数传入的几个参数合并到内部的选项 $options 里了。
+ */
 export function initInternalComponent (vm: Component, options: InternalComponentOptions) {
+  //相当于 vm.$options = Object.create(Sub.options)。
   const opts = vm.$options = Object.create(vm.constructor.options)
   // doing this because it's faster than dynamic enumeration.
   const parentVnode = options._parentVnode
+  //把父组件和父Vnode实例保存在vm.$options 中
   opts.parent = options.parent
   opts._parentVnode = parentVnode
 
+  //把父Vnode配置中的其他属性保存在vm.$options 中
   const vnodeComponentOptions = parentVnode.componentOptions
   opts.propsData = vnodeComponentOptions.propsData
   opts._parentListeners = vnodeComponentOptions.listeners

@@ -39,7 +39,7 @@ export class Observer {
   dep: Dep;
   vmCount: number; // number of vms that has this object as root $data
 
-  constructor (value: any) {
+   constructor (value: any) {
     this.value = value
     this.dep = new Dep()
     this.vmCount = 0
@@ -106,18 +106,33 @@ function copyAugment (target: Object, src: Object, keys: Array<string>) {
  * returns the new observer if successfully observed,
  * or the existing observer if the value already has one.
  */
+/**
+ * 尝试为一个值创建一个观察者实例，
+ * 如果成功观察，则返回新的观察者，
+ * 或现有的观察者，如果该值已经有一个。
+ * @param {*} value 要观察的值
+ * @param {*} asRootData 
+ */
 export function observe (value: any, asRootData: ?boolean): Observer | void {
+  //必须是一个对象，而且不能是一个vnode实例
   if (!isObject(value) || value instanceof VNode) {
     return
   }
+
   let ob: Observer | void
+  //已经是一个响应式对象，
   if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
     ob = value.__ob__
   } else if (
+    //
     shouldObserve &&
     !isServerRendering() &&
     (Array.isArray(value) || isPlainObject(value)) &&
+    //判断对象是否可扩展
+    //默认情况下，对象是可扩展的：即可以为他们添加新的属性。以及它们的 __proto__ 属性可以被更改。
+    //Object.preventExtensions，Object.seal 或 Object.freeze 方法都可以标记一个对象为不可扩展（non-extensible）。
     Object.isExtensible(value) &&
+    //不是一个vue实例
     !value._isVue
   ) {
     ob = new Observer(value)
@@ -148,10 +163,12 @@ export function defineReactive (
   // cater for pre-defined getter/setters
   const getter = property && property.get
   const setter = property && property.set
-  if ((!getter || setter) && arguments.length === 2) {
+  
+  if ((!getter || setter)  && arguments.length === 2) {
     val = obj[key]
   }
 
+  //如果val还是一个对象，递归调用observe，给每一层的值添加响应式
   let childOb = !shallow && observe(val)
   Object.defineProperty(obj, key, {
     enumerable: true,

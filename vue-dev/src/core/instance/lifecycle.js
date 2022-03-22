@@ -30,9 +30,11 @@ export function initLifecycle (vm: Component) {
     while (parent.$options.abstract && parent.$parent) {
       parent = parent.$parent
     }
+    //把当前vm存储到父实例的$children中
     parent.$children.push(vm)
-  }
+  } 
 
+  //保留当前vm的父实例
   vm.$parent = parent
   vm.$root = parent ? parent.$root : vm
 
@@ -65,6 +67,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
       // updates
       vm.$el = vm.__patch__(prevVnode, vnode)
     }
+    //保留当前上下文的vue实例
     activeInstance = prevActiveInstance
     // update __vue__ reference
     if (prevEl) {
@@ -201,6 +204,7 @@ export function mountComponent (
   // component's mounted hook), which relies on vm._watcher being already defined
   new Watcher(vm, updateComponent, noop, {
     before () {
+      // 已经mounted了，才会去调用beforeUpdate钩子
       if (vm._isMounted) {
         callHook(vm, 'beforeUpdate')
       }

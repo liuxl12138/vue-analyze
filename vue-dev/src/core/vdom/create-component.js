@@ -35,6 +35,7 @@ import {
 // inline hooks to be invoked on component VNodes during patch
 const componentVNodeHooks = {
   init (vnode: VNodeWithData, hydrating: boolean): ?boolean {
+    //keep-alive相关
     if (
       vnode.componentInstance &&
       !vnode.componentInstance._isDestroyed &&
@@ -44,6 +45,7 @@ const componentVNodeHooks = {
       const mountedNode: any = vnode // work around flow
       componentVNodeHooks.prepatch(mountedNode, mountedNode)
     } else {
+      //它是通过 createComponentInstanceForVnode 创建一个 Vue 的实例，然后调用 $mount 方法挂载子组件
       const child = vnode.componentInstance = createComponentInstanceForVnode(
         vnode,
         activeInstance
@@ -109,6 +111,8 @@ export function createComponent (
     return
   }
 
+  //src/core/global-api/index.js ：  Vue.options._base = Vue
+  //实际上就是 Vue   
   const baseCtor = context.$options._base
 
   // plain options object: turn it into a constructor
@@ -211,7 +215,7 @@ export function createComponentInstanceForVnode (
   parent: any, // activeInstance in lifecycle state
 ): Component {
   const options: InternalComponentOptions = {
-    _isComponent: true,
+    _isComponent: true, 
     _parentVnode: vnode,
     parent
   }
@@ -221,6 +225,7 @@ export function createComponentInstanceForVnode (
     options.render = inlineTemplate.render
     options.staticRenderFns = inlineTemplate.staticRenderFns
   }
+  //new vnode.componentOptions.Ctor是子组件的构造函数
   return new vnode.componentOptions.Ctor(options)
 }
 

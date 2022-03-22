@@ -374,30 +374,42 @@ export function mergeOptions (
   if (typeof child === 'function') {
     child = child.options
   }
+  //处理各种参数
 
+  //props
   normalizeProps(child, vm)
+  //inject
   normalizeInject(child, vm)
+  //directive
   normalizeDirectives(child)
+
+  //先递归把 extends 和 mixins 合并到 parent 上
+
+  //extends
   const extendsFrom = child.extends
   if (extendsFrom) {
     parent = mergeOptions(parent, extendsFrom, vm)
   }
+  //mixins
   if (child.mixins) {
     for (let i = 0, l = child.mixins.length; i < l; i++) {
       parent = mergeOptions(parent, child.mixins[i], vm)
     }
   }
+
   const options = {}
   let key
   for (key in parent) {
     mergeField(key)
   }
   for (key in child) {
+    //如果 key 不在 parent 的自身属性上
     if (!hasOwn(parent, key)) {
       mergeField(key)
     }
   }
   function mergeField (key) {
+    //对不同的 key 有着不同的合并策略
     const strat = strats[key] || defaultStrat
     options[key] = strat(parent[key], child[key], vm, key)
   }
