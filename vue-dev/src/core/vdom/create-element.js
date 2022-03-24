@@ -118,7 +118,7 @@ export function _createElement (
         undefined, undefined, context
       )
     } else if (isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
-      // component
+      // component 字符串形式
       vnode = createComponent(Ctor, data, context, children, tag)
     } else {
       // unknown or unlisted namespaced elements
@@ -130,6 +130,7 @@ export function _createElement (
       )
     }
   } else {
+    // component 对象形式
     // direct component options / constructor
     vnode = createComponent(tag, data, context, children)
   }

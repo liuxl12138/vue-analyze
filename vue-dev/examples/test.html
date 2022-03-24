@@ -7,13 +7,45 @@
     <script src="../dist/vue.js"></script>
   </head>
   <body>
-    <div id="app">{{msg}}</div>
+    <div id="app">
+      <!-- <compnent1 ref="comp1"></compnent1> -->
+      <div  class="box">{{msg1}}</div>
+      <!-- <div class="box">{{msg2}}</div> -->
+      <!-- <button @click="toogle">toogle</button>
+      <button @click="change">change</button> -->
+    </div>
+   
+
     <script>
-      debugger;
+      var compnent1 = {
+        data() {
+          return{
+            msg:"1"
+          }
+        },
+        render: function (h) {
+          return h("p", this.msg);
+        },
+      };
       new Vue({
         el: "#app",
-        data: {
-          msg: "helloworld",
+        data() {
+          return { msg1: {name:new String(1),age:1}};
+        },
+        components: {
+          compnent1,
+        },
+
+        methods: {
+          toogle() {
+            this.flag = false;
+          },
+          change() {
+            // this.msg1.value2="new-text1"
+            this.$set(this.msg1,"value2",'new-text2')
+          },
+        },
+        watch:{
         },
       });
     </script>

@@ -690,7 +690,6 @@ export function createPatchFunction (backend) {
    * vnode：虚拟dom
    */
   return function patch (oldVnode, vnode, hydrating, removeOnly) {
-    debugger
     if (isUndef(vnode)) {
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
       return

@@ -100,6 +100,20 @@ const componentVNodeHooks = {
 
 const hooksToMerge = Object.keys(componentVNodeHooks)
 
+/**
+ 为当前组件创建构造函数 
+处理组件v-model
+提取传入的props值 
+获取自定义事件，并将nativeOn赋值给data.on
+给data添加 hook 钩子函数 
+创建组件占位符VNode，并将{ Ctor, propsData, listeners, tag, children } 赋值给了 VNode 的 componentOptions属性
+返回组件占位符VNode
+ * @param {} Ctor 
+ * @param {*} data 
+ * @param {*} context //父组件vue实例
+ * @param {*} children //组件子节点
+ * @param {*} tag //组件名
+ */
 export function createComponent (
   Ctor: Class<Component> | Function | Object | void,
   data: ?VNodeData,
@@ -191,6 +205,7 @@ export function createComponent (
 
   // return a placeholder vnode
   const name = Ctor.options.name || tag
+  //创建组件占位符vnode
   //组件vnode的children是空 componentOptions里面有children
   const vnode = new VNode(
     `vue-component-${Ctor.cid}${name ? `-${name}` : ''}`,

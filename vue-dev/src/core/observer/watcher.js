@@ -128,12 +128,14 @@ export default class Watcher {
   /**
    * Add a dependency to this directive.
    */
+  
   addDep (dep: Dep) {
     const id = dep.id
     if (!this.newDepIds.has(id)) {
       this.newDepIds.add(id)
       this.newDeps.push(dep)
       if (!this.depIds.has(id)) {
+        //把当前watcher添加到dep的subs中
         dep.addSub(this)
       }
     }
@@ -141,6 +143,12 @@ export default class Watcher {
 
   /**
    * Clean up for dependency collection.
+   * 比对 newDeps 和 deps，如果 deps 有而 newDeps 没有，说明新的VNode已经不依赖当前属性了，则将当前watcher从这个 dep的subs中删除
+   * 举例说明：
+   *  <div v-if="flag" class="box">{{msg1}}</div>
+      <div v-else class="box">{{msg2}}</div>
+      一开始flag=true，msg1这个属性的dep中收集了此watcher，此时更改msg1的值，会派发更新，重新渲染
+      后来设置flag= false，msg1这个属性的dep就不应该收集此watcher了，因为再去派发更新也是没用的，所以将wacher从dep中删除，提高了效率
    */
   cleanupDeps () {
     let i = this.deps.length
@@ -200,7 +208,7 @@ export default class Watcher {
       this.getAndInvoke(this.cb)
     }
   }
-
+ 
   getAndInvoke (cb: Function) {
     const value = this.get()
     if (

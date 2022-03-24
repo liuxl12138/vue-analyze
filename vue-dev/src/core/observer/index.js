@@ -42,9 +42,12 @@ export class Observer {
    constructor (value: any) {
     this.value = value
     this.dep = new Dep()
+    console.log(this.dep.id)
+    console.log(value)
     this.vmCount = 0
     def(value, '__ob__', this)
     if (Array.isArray(value)) {
+      //hasProto：检测当前环境是否可以使用对象的__proto__属性，
       const augment = hasProto
         ? protoAugment
         : copyAugment
@@ -111,7 +114,7 @@ function copyAugment (target: Object, src: Object, keys: Array<string>) {
  * 如果成功观察，则返回新的观察者，
  * 或现有的观察者，如果该值已经有一个。
  * @param {*} value 要观察的值
- * @param {*} asRootData 
+ * @param {*} asRootData  asRootData 如果添加响应的对象是 data，asRootData 是 true；如果data某个属性的属性值是对象则为false
  */
 export function observe (value: any, asRootData: ?boolean): Observer | void {
   //必须是一个对象，而且不能是一个vnode实例
@@ -154,7 +157,8 @@ export function defineReactive (
   shallow?: boolean
 ) {
   const dep = new Dep()
-
+  console.log(dep.id)
+  console.log(obj[key])
   const property = Object.getOwnPropertyDescriptor(obj, key)
   if (property && property.configurable === false) {
     return
@@ -169,6 +173,7 @@ export function defineReactive (
   }
 
   //如果val还是一个对象，递归调用observe，给每一层的值添加响应式
+  //返回值是一个observer对象
   let childOb = !shallow && observe(val)
   Object.defineProperty(obj, key, {
     enumerable: true,
@@ -176,10 +181,16 @@ export function defineReactive (
     get: function reactiveGetter () {
       const value = getter ? getter.call(obj) : val
       if (Dep.target) {
+        //把当前watcher添加到dep的subs中
         dep.depend()
         if (childOb) {
+          // 这样做的目的是
+          // 1. 当执行数组的某些方法时，可以更新视图
+              // 因为调用数组的某些方法其实会手动触发更新，但是更新的是数组 dep 里面存放的Watcher，所以在依赖收集过程中，需要将这个Watcher存放到数组的Dep实例里面
+          // 2. 通过 $set 给对象添加属性时，可以更新视图（原因和第一条相同）
           childOb.dep.depend()
           if (Array.isArray(value)) {
+            // 如果是数组并且数组元素中有对象，将这个 Watcher 添加到对象的 dep.subs 中
             dependArray(value)
           }
         }
@@ -187,8 +198,11 @@ export function defineReactive (
       return value
     },
     set: function reactiveSetter (newVal) {
+      //先取得之前的值
       const value = getter ? getter.call(obj) : val
       /* eslint-disable no-self-compare */
+
+      //新旧值相等，直接返回
       if (newVal === value || (newVal !== newVal && value !== value)) {
         return
       }
@@ -196,12 +210,17 @@ export function defineReactive (
       if (process.env.NODE_ENV !== 'production' && customSetter) {
         customSetter()
       }
+
+      //设置新值
       if (setter) {
         setter.call(obj, newVal)
       } else {
         val = newVal
       }
+
+      //如果新值是对象，给新值添加响应
       childOb = !shallow && observe(newVal)
+      // 通知所有订阅更新
       dep.notify()
     }
   })
@@ -213,21 +232,29 @@ export function defineReactive (
  * already exist.
  */
 export function set (target: Array<any> | Object, key: any, val: any): any {
+  //如果是undefined 或者 null 或者 基础类型，不能调用set方法
   if (process.env.NODE_ENV !== 'production' &&
     (isUndef(target) || isPrimitive(target))
   ) {
     warn(`Cannot set reactive property on undefined, null, or primitive value: ${(target: any)}`)
   }
+  // 数组值插入
   if (Array.isArray(target) && isValidArrayIndex(key)) {
+    //数组的长度是key和length的最大值
     target.length = Math.max(target.length, key)
+    // 把值插入对应的位置
     target.splice(key, 1, val)
     return val
   }
+
+  //对象的处理
+  //如果key存在对象上，直接赋值，因为已经有响应式了
   if (key in target && !(key in Object.prototype)) {
     target[key] = val
     return val
   }
   const ob = (target: any).__ob__
+  // 如果对象是vue或者vue.data,报错（只有vue。data有vmCount）
   if (target._isVue || (ob && ob.vmCount)) {
     process.env.NODE_ENV !== 'production' && warn(
       'Avoid adding reactive properties to a Vue instance or its root $data ' +
@@ -235,11 +262,14 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
     )
     return val
   }
+  //target如果不是响应式，说明target是一个普通类型的值，直接给他赋值
   if (!ob) {
     target[key] = val
     return val
   }
+  //走到这里说明是一个响应式对象，给 ob.value也就是target这个对象，添加一个key，值为val
   defineReactive(ob.value, key, val)
+  //如果不手动派发更新，target这个对象不会触发set，也就不会更新视图，
   ob.dep.notify()
   return val
 }

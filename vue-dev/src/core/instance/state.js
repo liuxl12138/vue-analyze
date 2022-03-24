@@ -108,7 +108,12 @@ function initProps (vm: Component, propsOptions: Object) {
   }
   toggleObserving(true)
 }
-
+/**
+ * 
+ * 1.首先会验证 methods、props、data 中没有同名属性，有则报错
+ * 2.通过 proxy 将data 中的 key代理到 vm 上，从而可以通过this.xxx 的方式访问 data 中的属性
+ * 3.通过observe函数创建观察者实例，给data所有属性添加响应
+ */
 function initData (vm: Component) {
   let data = vm.$options.data
   data = vm._data = typeof data === 'function'

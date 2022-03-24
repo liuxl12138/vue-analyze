@@ -25,8 +25,8 @@ function flushCallbacks () {
 // when state is changed right before repaint (e.g. #6813, out-in transitions).
 // Here we use microtask by default, but expose a way to force (macro) task when
 // needed (e.g. in event handlers attached by v-on).
-let microTimerFunc
-let macroTimerFunc
+let microTimerFunc  //微任务 是否支持promise？promise：指向macroTimerFunc的实现
+let macroTimerFunc  //宏任务 setImmediate ? MessageChannel ? setTimeout
 let useMacroTask = false
 
 // Determine (macro) task defer implementation.
@@ -78,17 +78,20 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
  * Wrap a function so that if any code inside triggers state change,
  * the changes are queued using a (macro) task instead of a microtask.
  */
+
+ //强制使用宏任务来实现异步任务
 export function withMacroTask (fn: Function): Function {
   return fn._withTask || (fn._withTask = function () {
     useMacroTask = true
     const res = fn.apply(null, arguments)
     useMacroTask = false
-    return res
+    return res 
   })
 }
 
 export function nextTick (cb?: Function, ctx?: Object) {
   let _resolve
+  //把回调函数cb放入callbacks
   callbacks.push(() => {
     if (cb) {
       try {
@@ -100,6 +103,7 @@ export function nextTick (cb?: Function, ctx?: Object) {
       _resolve(ctx)
     }
   })
+  //根据 useMacroTask 条件执行 macroTimerFunc 或者是 microTimerFunc，执行callbacks中所有的函数
   if (!pending) {
     pending = true
     if (useMacroTask) {
@@ -109,6 +113,7 @@ export function nextTick (cb?: Function, ctx?: Object) {
     }
   }
   // $flow-disable-line
+  //没传cb参数时，
   if (!cb && typeof Promise !== 'undefined') {
     return new Promise(resolve => {
       _resolve = resolve
