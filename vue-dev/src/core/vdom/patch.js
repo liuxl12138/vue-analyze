@@ -405,16 +405,15 @@ export function createPatchFunction (backend) {
   }
 
   function updateChildren (parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly) {
-    let oldStartIdx = 0
-    let newStartIdx = 0
-    let oldEndIdx = oldCh.length - 1
-    let oldStartVnode = oldCh[0]
-    let oldEndVnode = oldCh[oldEndIdx]
-    let newEndIdx = newCh.length - 1
-    let newStartVnode = newCh[0]
-    let newEndVnode = newCh[newEndIdx]
+    let oldStartIdx = 0 //旧children的开始下标
+    let newStartIdx = 0 //新children的开始下标
+    let oldEndIdx = oldCh.length - 1 //旧children的结束下标
+    let oldStartVnode = oldCh[0]  //旧children的第一个元素
+    let oldEndVnode = oldCh[oldEndIdx] //旧children的最后一个元素
+    let newEndIdx = newCh.length - 1 //新children的结束下标
+    let newStartVnode = newCh[0] //新children的第一个元素
+    let newEndVnode = newCh[newEndIdx] //新children的最后一个元素
     let oldKeyToIdx, idxInOld, vnodeToMove, refElm
-
     // removeOnly is a special flag used only by <transition-group>
     // to ensure removed elements stay in correct relative positions
     // during leaving transitions
@@ -423,7 +422,6 @@ export function createPatchFunction (backend) {
     if (process.env.NODE_ENV !== 'production') {
       checkDuplicateKeys(newCh)
     }
-
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
       if (isUndef(oldStartVnode)) {
         oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left
@@ -457,6 +455,7 @@ export function createPatchFunction (backend) {
         } else {
           vnodeToMove = oldCh[idxInOld]
           if (sameVnode(vnodeToMove, newStartVnode)) {
+
             patchVnode(vnodeToMove, newStartVnode, insertedVnodeQueue)
             oldCh[idxInOld] = undefined
             canMove && nodeOps.insertBefore(parentElm, vnodeToMove.elm, oldStartVnode.elm)
@@ -705,6 +704,7 @@ export function createPatchFunction (backend) {
     } else {
       const isRealElement = isDef(oldVnode.nodeType)
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
+        debugger
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly)
       } else {
@@ -739,7 +739,7 @@ export function createPatchFunction (backend) {
         // replacing existing element
         const oldElm = oldVnode.elm
         const parentElm = nodeOps.parentNode(oldElm)
-
+        debugger
         // create new node
         //vnode挂载到真实的dom上
         createElm(

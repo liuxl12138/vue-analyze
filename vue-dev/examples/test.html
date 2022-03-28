@@ -9,43 +9,71 @@
   <body>
     <div id="app">
       <!-- <compnent1 ref="comp1"></compnent1> -->
-      <div  class="box">{{msg1}}</div>
+      <!-- <compnent1 ref="comp2"></compnent1> -->
+      <template v-if="!flag">
+        <div class="box22222">{{msg1}}222</div>
+      </template>
+        <h1 v-else class="box1111">{{msg2}}</h1>
+      <!-- <div class="box">{{msg}}</div> -->
+
       <!-- <div class="box">{{msg2}}</div> -->
-      <!-- <button @click="toogle">toogle</button>
-      <button @click="change">change</button> -->
+      <button @click="toogle">toogle</button>
+      <button @click="change">change</button>
     </div>
-   
 
     <script>
       var compnent1 = {
         data() {
-          return{
-            msg:"1"
-          }
+          return {
+            text1: "childa",
+            text2: "childb",
+          };
         },
         render: function (h) {
           return h("p", this.msg);
         },
+        computed: {
+          msg() {
+            console.log("child computed");
+            return this.text1 + this.text2;
+          },
+        },
+        watch: {
+          text1() {
+            console.log("child,watch");
+          },
+        },
       };
+      // Vue.component('compnent1',compnent1)
       new Vue({
         el: "#app",
         data() {
-          return { msg1: {name:new String(1),age:1}};
+          return { msg1: "a", msg2: "b" ,flag:true};
         },
         components: {
           compnent1,
         },
-
         methods: {
           toogle() {
             this.flag = false;
           },
           change() {
-            // this.msg1.value2="new-text1"
-            this.$set(this.msg1,"value2",'new-text2')
+            this.flag=false
           },
         },
-        watch:{
+        watch: {
+          msg: function (oldVal, newVal) {
+            console.log("watch1");
+          },
+          msg2: function (oldVal, newVal) {
+            console.log("watch2");
+          },
+        },
+        computed: {
+          msg() {
+            console.log("computed");
+            return this.msg1 + this.msg2;
+          },
         },
       });
     </script>

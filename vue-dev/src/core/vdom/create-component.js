@@ -128,7 +128,6 @@ export function createComponent (
   //src/core/global-api/index.js ：  Vue.options._base = Vue
   //实际上就是 Vue   
   const baseCtor = context.$options._base
-
   // plain options object: turn it into a constructor
   if (isObject(Ctor)) {
     Ctor = baseCtor.extend(Ctor)

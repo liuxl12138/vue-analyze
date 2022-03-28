@@ -45,7 +45,7 @@ export function proxy (target: Object, sourceKey: string, key: string) {
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
 
-export function initState (vm: Component) {
+export function  initState (vm: Component) {
   vm._watchers = []
   const opts = vm.$options
   if (opts.props) initProps(vm, opts.props)
@@ -171,14 +171,17 @@ export function getData (data: Function, vm: Component): any {
 
 const computedWatcherOptions = { computed: true }
 
-function initComputed (vm: Component, computed: Object) {
+function  initComputed (vm: Component, computed: Object) {
   // $flow-disable-line
   const watchers = vm._computedWatchers = Object.create(null)
   // computed properties are just getters during SSR
   const isSSR = isServerRendering()
 
+  //遍历computed
   for (const key in computed) {
+    //userDef就是我们定义的每个computed的值
     const userDef = computed[key]
+    //拿到getter函数
     const getter = typeof userDef === 'function' ? userDef : userDef.get
     if (process.env.NODE_ENV !== 'production' && getter == null) {
       warn(
@@ -189,11 +192,12 @@ function initComputed (vm: Component, computed: Object) {
 
     if (!isSSR) {
       // create internal watcher for the computed property.
+      //每个key new一个watcher
       watchers[key] = new Watcher(
         vm,
-        getter || noop,
-        noop,
-        computedWatcherOptions
+        getter || noop,//watcher的getter
+        noop, //回调函数
+        computedWatcherOptions //{computed: true}
       )
     }
 
@@ -203,6 +207,7 @@ function initComputed (vm: Component, computed: Object) {
     if (!(key in vm)) {
       defineComputed(vm, key, userDef)
     } else if (process.env.NODE_ENV !== 'production') {
+      //computed中的值不能和data、props中的值相同
       if (key in vm.$data) {
         warn(`The computed property "${key}" is already defined in data.`, vm)
       } else if (vm.$options.props && key in vm.$options.props) {
@@ -217,7 +222,7 @@ export function defineComputed (
   key: string,
   userDef: Object | Function
 ) {
-  const shouldCache = !isServerRendering()
+  const shouldCache = !isServerRendering() //浏览器环境下是true
   if (typeof userDef === 'function') {
     sharedPropertyDefinition.get = shouldCache
       ? createComputedGetter(key)
@@ -242,6 +247,7 @@ export function defineComputed (
       )
     }
   }
+  
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
 
@@ -250,7 +256,7 @@ function createComputedGetter (key) {
     const watcher = this._computedWatchers && this._computedWatchers[key]
     if (watcher) {
       watcher.depend()
-      return watcher.evaluate()
+      return watcher.evaluate() 
     }
   }
 }
@@ -348,8 +354,9 @@ export function stateMixin (Vue: Class<Component>) {
       return createWatcher(vm, expOrFn, cb, options)
     }
     options = options || {}
-    options.user = true
+    options.user = true //说明是一个user watcher
     const watcher = new Watcher(vm, expOrFn, cb, options)
+    //如果是immediate，会立即执行一次函数
     if (options.immediate) {
       cb.call(vm, watcher.value)
     }
