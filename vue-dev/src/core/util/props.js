@@ -29,6 +29,8 @@ export function validateProp (
   let value = propsData[key]
   // boolean casting
   const booleanIndex = getTypeIndex(Boolean, prop.type)
+
+  //处理boolean类型
   if (booleanIndex > -1) {
     if (absent && !hasOwn(prop, 'default')) {
       value = false
@@ -42,6 +44,7 @@ export function validateProp (
     }
   }
   // check default value
+  // 没有传值，检查默认值
   if (value === undefined) {
     value = getPropDefaultValue(vm, prop, key)
     // since the default value is a fresh copy,
@@ -81,8 +84,13 @@ function getPropDefaultValue (vm: ?Component, prop: PropOptions, key: string): a
   }
   // the raw prop value was also undefined from previous render,
   // return previous default value to avoid unnecessary watcher trigger
+
+  // 当第一次和第二次都没传入值时，说明两次都是用的默认值，第一次已经对这个默认值添加监听了
+  // 所以第二次直接将第一次被监听的对象赋值给 value
+  // 这样执行到后面的 observe 时，会因为有 __ob__ 属性，不会再次执行后面添加响应的逻辑
+  //  如果没有这段逻辑，因为return的是一个对象，所以每次都不相同，每次都会触发响应式逻辑
   if (vm && vm.$options.propsData &&
-    vm.$options.propsData[key] === undefined &&
+    vm.$options.propsData[key] === undefined && 
     vm._props[key] !== undefined
   ) {
     return vm._props[key]

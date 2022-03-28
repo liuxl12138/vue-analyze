@@ -8,17 +8,19 @@
   </head>
   <body>
     <div id="app">
-      <!-- <compnent1 ref="comp1"></compnent1> -->
+      <compnent1  :datatext="msg1"></compnent1>
+      <button @click="change">change</button>
+
       <!-- <compnent1 ref="comp2"></compnent1> -->
-      <template v-if="!flag">
+      <!-- <template v-if="!flag">
         <div class="box22222">{{msg1}}222</div>
       </template>
         <h1 v-else class="box1111">{{msg2}}</h1>
-      <!-- <div class="box">{{msg}}</div> -->
+      <div class="box">{{msg}}</div>
 
-      <!-- <div class="box">{{msg2}}</div> -->
+      <div class="box">{{msg2}}</div>
       <button @click="toogle">toogle</button>
-      <button @click="change">change</button>
+      <button @click="change">change</button> -->
     </div>
 
     <script>
@@ -30,13 +32,16 @@
           };
         },
         render: function (h) {
-          return h("p", this.msg);
+          return h("p", this.datatext);
         },
         computed: {
           msg() {
             console.log("child computed");
-            return this.text1 + this.text2;
+            return this.text1 + this.parentText;
           },
+        },
+        props:{
+          datatext:String
         },
         watch: {
           text1() {
@@ -58,7 +63,7 @@
             this.flag = false;
           },
           change() {
-            this.flag=false
+            this.msg1='abcd'
           },
         },
         watch: {

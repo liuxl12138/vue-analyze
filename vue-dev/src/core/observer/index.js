@@ -157,8 +157,6 @@ export function defineReactive (
   shallow?: boolean
 ) {
   const dep = new Dep()
-  console.log(dep.id)
-  console.log(obj[key])
   const property = Object.getOwnPropertyDescriptor(obj, key)
   if (property && property.configurable === false) {
     return
@@ -179,6 +177,7 @@ export function defineReactive (
     enumerable: true,
     configurable: true,
     get: function reactiveGetter () {
+
       const value = getter ? getter.call(obj) : val
       if (Dep.target) {
         //把当前watcher添加到dep的subs中
@@ -198,6 +197,7 @@ export function defineReactive (
       return value
     },
     set: function reactiveSetter (newVal) {
+
       //先取得之前的值
       const value = getter ? getter.call(obj) : val
       /* eslint-disable no-self-compare */

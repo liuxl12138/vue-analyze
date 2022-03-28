@@ -69,6 +69,9 @@ function initProps (vm: Component, propsOptions: Object) {
   const keys = vm.$options._propKeys = []
   const isRoot = !vm.$parent
   // root instance props should be converted
+  // 如果不是根节点，将 observer/index.js 中的 shouldObserve 设置成 false
+  // 如果传入的prop数据是一个对象，调用defineReactive时，还会调用observe，给对象的属性添加响应；
+  // 其实在父组件中，已经通过observe给对象内部所有属性添加响应了，所以这里就没必要再次添加了
   if (!isRoot) {
     toggleObserving(false)
   }

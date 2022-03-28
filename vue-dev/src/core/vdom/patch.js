@@ -704,7 +704,6 @@ export function createPatchFunction (backend) {
     } else {
       const isRealElement = isDef(oldVnode.nodeType)
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
-        debugger
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly)
       } else {
@@ -739,7 +738,6 @@ export function createPatchFunction (backend) {
         // replacing existing element
         const oldElm = oldVnode.elm
         const parentElm = nodeOps.parentNode(oldElm)
-        debugger
         // create new node
         //vnode挂载到真实的dom上
         createElm(
